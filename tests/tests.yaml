@@ -6,3 +6,4 @@
 - tests/i2c.robot
 - tests/temperature.robot
 - tests/rtc.robot
+- tests/eeprom.robot

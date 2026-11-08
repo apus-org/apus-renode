@@ -45,6 +45,10 @@ namespace Antmicro.Renode.Peripherals.Timers
                     this.Log(LogLevel.Warning, "Write to invalid address 0x{0:X2} dropped", Pointer);
                     return;
                 }
+                if(Pointer == Unlock)
+                {
+                    unlockStep = data[i] == 0x55 ? 1 : data[i] == 0xAA && unlock == 1 ? 2 : 0;
+                }
                 if(Pointer < SramStart)
                 {
                     WriteRegister(Pointer, data[i]);
@@ -88,15 +92,26 @@ namespace Antmicro.Renode.Peripherals.Timers
 
         public void FinishTransmission()
         {
+            unlock = unlockStep;
+            unlockStep = 0;
         }
 
         public void Reset()
         {
+            unlock = 0;
+            unlockStep = 0;
         }
 
         public GPIO MFP { get; }
 
-        private byte Pointer { get; set; }
+        internal byte Pointer { get; set; }
+
+        internal bool TakeUnlock()
+        {
+            var unlocked = unlock == 2;
+            unlock = 0;
+            return unlocked;
+        }
 
         private static int FromBcd(byte value) => (value >> 4) * 10 + (value & 0x0F);
 
@@ -291,6 +306,9 @@ namespace Antmicro.Renode.Peripherals.Timers
             MFP.Set(Level());
         }
 
+        private int unlock;
+        private int unlockStep;
+
         private readonly byte[] registers = new byte[RegistersEnd];
         private readonly byte[] sram = new byte[SramEnd - SramStart];
         private readonly LimitTimer oscillator;
@@ -304,6 +322,7 @@ namespace Antmicro.Renode.Peripherals.Timers
         private const byte Month = 0x05;
         private const byte Year = 0x06;
         private const byte Control = 0x07;
+        private const byte Unlock = 0x09;
         private const byte RegistersEnd = 0x20;
         private const byte SramStart = 0x20;
         private const byte SramEnd = 0x60;
@@ -326,5 +345,150 @@ namespace Antmicro.Renode.Peripherals.Timers
             0xFF, 0x7F, 0x7F, 0x3F, 0x77, 0x3F, 0x1F, 0xFF,
             0x7F, 0x7F, 0x3F, 0xFF, 0x7F, 0x7F, 0x3F, 0xFF,
         };
+    }
+}
+
+namespace Antmicro.Renode.Peripherals.Memory
+{
+    public class MCP79410_EEPROM : II2CPeripheral
+    {
+        public MCP79410_EEPROM(Timers.MCP79410 rtc)
+        {
+            this.rtc = rtc;
+            for(var i = 0; i < array.Length; i++)
+            {
+                array[i] = 0xFF;
+            }
+            for(var i = 0; i < protectedBlock.Length; i++)
+            {
+                protectedBlock[i] = 0xFF;
+            }
+        }
+
+        public void Write(byte[] data)
+        {
+            if(data.Length == 0)
+            {
+                return;
+            }
+            var address = data[0];
+            for(var i = 1; i < data.Length; i++)
+            {
+                if(address == Status)
+                {
+                    pendingStatus = data[i];
+                    continue;
+                }
+                if(!IsArray(address) && !IsProtected(address))
+                {
+                    this.Log(LogLevel.Warning, "Write to invalid address 0x{0:X2} dropped", address);
+                    break;
+                }
+                pending[address & PageMask] = data[i];
+                pendingAddress[address & PageMask] = address;
+                address = (byte)(address & ~PageMask | (address + 1) & PageMask);
+            }
+            rtc.Pointer = address;
+        }
+
+        public byte[] Read(int count = 1)
+        {
+            var result = new byte[count];
+            for(var i = 0; i < count; i++)
+            {
+                var address = rtc.Pointer;
+                if(IsArray(address))
+                {
+                    result[i] = array[address];
+                    address = (byte)((address + 1) % ArraySize);
+                }
+                else if(IsProtected(address))
+                {
+                    result[i] = protectedBlock[address - ProtectedStart];
+                    address++;
+                }
+                else if(address == Status)
+                {
+                    result[i] = status;
+                    address++;
+                }
+                else
+                {
+                    this.Log(LogLevel.Warning, "Read from invalid address 0x{0:X2}", address);
+                    result[i] = 0xFF;
+                    address++;
+                }
+                rtc.Pointer = address;
+            }
+            return result;
+        }
+
+        public void FinishTransmission()
+        {
+            var unlocked = rtc.TakeUnlock();
+            if(pendingStatus.HasValue)
+            {
+                status = (byte)(pendingStatus.Value & BlockProtectMask);
+            }
+            for(var i = 0; i < pending.Length; i++)
+            {
+                if(!pending[i].HasValue)
+                {
+                    continue;
+                }
+                var address = pendingAddress[i];
+                if(IsProtected(address))
+                {
+                    if(unlocked)
+                    {
+                        protectedBlock[address - ProtectedStart] = pending[i].Value;
+                    }
+                    else
+                    {
+                        this.Log(LogLevel.Warning, "Protected EEPROM write to 0x{0:X2} without unlock dropped", address);
+                    }
+                }
+                else if(address < ProtectedFrom[(status >> 2) & 3])
+                {
+                    array[address] = pending[i].Value;
+                }
+                else
+                {
+                    this.Log(LogLevel.Warning, "Write to block-protected address 0x{0:X2} dropped", address);
+                }
+            }
+            Reset();
+        }
+
+        public void Reset()
+        {
+            pendingStatus = null;
+            for(var i = 0; i < pending.Length; i++)
+            {
+                pending[i] = null;
+            }
+        }
+
+        private static bool IsArray(byte address) => address < ArraySize;
+
+        private static bool IsProtected(byte address) => address >= ProtectedStart && address < ProtectedStart + PageSize;
+
+        private byte status;
+        private byte? pendingStatus;
+
+        private readonly Timers.MCP79410 rtc;
+        private readonly byte[] array = new byte[ArraySize];
+        private readonly byte[] protectedBlock = new byte[PageSize];
+        private readonly byte?[] pending = new byte?[PageSize];
+        private readonly byte[] pendingAddress = new byte[PageSize];
+
+        private const int ArraySize = 0x80;
+        private const int PageSize = 8;
+        private const int PageMask = PageSize - 1;
+        private const byte ProtectedStart = 0xF0;
+        private const byte Status = 0xFF;
+        private const byte BlockProtectMask = 0x0C;
+
+        private static readonly int[] ProtectedFrom = { ArraySize, 0x60, 0x40, 0x00 };
     }
 }

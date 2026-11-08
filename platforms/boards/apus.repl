@@ -133,7 +133,10 @@ i2c1:
 temperature: Sensors.MCP9803 @ i2c1 0x48
     Alert -> gpioPortD@4
 
-// RTC, MFP on PD3, open drain
+// RTC, MFP on PD3, open drain; its EEPROM answers on 0x57
 
 externalRtc: Timers.MCP79410 @ i2c1 0x6F
     MFP -> gpioPortD@3
+
+eeprom: Memory.MCP79410_EEPROM @ i2c1 0x57
+    rtc: externalRtc
