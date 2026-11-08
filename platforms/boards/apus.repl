@@ -123,6 +123,11 @@ systemMemory: Memory.MappedMemory @ sysbus 0x1FFF_C800
     init:
         WriteWord 0x2FBA 1526
 
+// I2C1 event interrupt; the SoC description leaves it unconnected
+
+i2c1:
+    EventInterrupt -> nvic@23
+
 // temperature sensor, ALERT on PD4, open drain
 
 temperature: Sensors.MCP9803 @ i2c1 0x48

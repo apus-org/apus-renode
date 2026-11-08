@@ -3,4 +3,5 @@
 - tests/adc.robot
 - tests/tim3.robot
 - tests/can.robot
+- tests/i2c.robot
 - tests/temperature.robot
