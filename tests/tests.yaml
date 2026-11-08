@@ -3,3 +3,4 @@
 - tests/adc.robot
 - tests/tim3.robot
 - tests/can.robot
+- tests/temperature.robot

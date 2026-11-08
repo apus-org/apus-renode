@@ -3,6 +3,8 @@
 
 $name?="apus"
 
+include $ORIGIN/../peripherals/MCP9803.cs
+
 mach create $name
 machine LoadPlatformDescription $ORIGIN/../platforms/boards/apus.repl
 

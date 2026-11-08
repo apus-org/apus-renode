@@ -122,3 +122,8 @@ systemMemory: Memory.MappedMemory @ sysbus 0x1FFF_C800
     size: 0x3000
     init:
         WriteWord 0x2FBA 1526
+
+// temperature sensor, ALERT on PD4, open drain
+
+temperature: Sensors.MCP9803 @ i2c1 0x48
+    Alert -> gpioPortD@4

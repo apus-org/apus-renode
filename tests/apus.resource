@@ -23,8 +23,12 @@ Read Symbol
     ${value}=                   Evaluate    int($value, 0)
     RETURN                      ${value}
 
-Write Symbol
+Store Symbol
     [Arguments]                 ${symbol}    ${value}
     ${address}=                 Symbol Address    ${symbol}
     Execute Command             sysbus WriteDoubleWord ${address} ${value}
+
+Write Symbol
+    [Arguments]                 ${symbol}    ${value}
+    Store Symbol                ${symbol}    ${value}
     Execute Command             emulation RunFor "${STEP}"
