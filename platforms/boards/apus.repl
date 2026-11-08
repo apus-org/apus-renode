@@ -71,6 +71,11 @@ rgbGreen: Miscellaneous.LED @ gpioPortC 7
 rgbBlue: Miscellaneous.LED @ gpioPortC 8
     invert: true
 
+// active buzzer, sounds while low
+
+buzzer: Miscellaneous.LED @ gpioPortC 9
+    invert: true
+
 gpioPortC:
     0 -> led3@0
     1 -> led4@0
@@ -78,6 +83,7 @@ gpioPortC:
     6 -> rgbRed@0
     7 -> rgbGreen@0
     8 -> rgbBlue@0
+    9 -> buzzer@0
 
 // buttons, active high
 

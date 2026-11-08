@@ -7,8 +7,8 @@ use cortex_m_rt::entry;
 use panic_halt as _;
 use stm32f0::stm32f0x2 as pac;
 
-/// GPIOC pins of the active-low outputs, in the order the tests select them: LED3, LED4, LED5, red, green, blue
-const OUTPUT_PINS: [u32; 6] = [0, 1, 2, 6, 7, 8];
+/// GPIOC pins of the active-low outputs, in the order the tests select them: LED3, LED4, LED5, red, green, blue, buzzer
+const OUTPUT_PINS: [u32; 7] = [0, 1, 2, 6, 7, 8, 9];
 const NONE: u32 = u32::MAX;
 
 /// Index into OUTPUT_PINS of the one output to switch on, written by the test
