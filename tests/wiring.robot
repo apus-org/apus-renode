@@ -2,7 +2,7 @@
 Resource            apus.resource
 
 *** Variables ***
-@{OUTPUTS}          led3    led4    led5
+@{OUTPUTS}          led3    led4    led5    rgbRed    rgbGreen    rgbBlue
 @{BUTTONS}          gpioPortA.wakeUp    gpioPortD.user0    gpioPortD.user1
 ${NONE}             0xFFFFFFFF
 
