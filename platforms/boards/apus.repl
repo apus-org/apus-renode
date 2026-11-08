@@ -75,3 +75,17 @@ user0: Miscellaneous.Button @ gpioPortD 0
 
 user1: Miscellaneous.Button @ gpioPortD 1
     -> gpioPortD@1
+
+// potentiometer RV1 on ADC_IN14, internal reference on ADC_IN17
+
+potentiometer: Analog.ADCChannelSource @ adc 14
+
+vrefint: Analog.ADCChannelSource @ adc 17
+    defaultValueMicroVolts: 1_230_000
+
+// factory calibration: VREFINT_CAL = 1.23 V / 3.3 V * 4095 at 0x1FFF_F7BA
+
+systemMemory: Memory.MappedMemory @ sysbus 0x1FFF_C800
+    size: 0x3000
+    init:
+        WriteWord 0x2FBA 1526

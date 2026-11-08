@@ -1,2 +1,3 @@
 - tests/wiring.robot
 - tests/clocks.robot
+- tests/adc.robot
