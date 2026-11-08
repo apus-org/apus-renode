@@ -8,3 +8,4 @@
 - tests/rtc.robot
 - tests/eeprom.robot
 - tests/display.robot
+- tests/touch.robot

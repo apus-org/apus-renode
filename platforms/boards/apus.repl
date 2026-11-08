@@ -150,3 +150,17 @@ gpioPortE:
 
 gpioPortF:
     10 -> display@11
+
+// touch controller TSC2046 on SPI1, nCS PE12, PENIRQ PF2; raw readings at the panel edges measured on the board
+
+touch: Input.TSC2046 @ spi1
+    width: 240
+    height: 320
+    rawLeft: 202
+    rawRight: 3820
+    rawTop: 3837
+    rawBottom: 264
+    PenIrq -> gpioPortF@2
+
+gpioPortE:
+    12 -> touch@0
