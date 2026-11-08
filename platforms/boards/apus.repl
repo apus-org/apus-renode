@@ -1,0 +1,61 @@
+using "platforms/cpus/stm32f072.repl"
+
+// 8 MHz crystal, PLL to 48 MHz, AHB and APB undivided
+
+nvic:
+    systickFrequency: 48_000_000
+
+timer1:
+    frequency: 48_000_000
+
+timer2:
+    frequency: 48_000_000
+
+timer3:
+    frequency: 48_000_000
+
+timer6:
+    frequency: 48_000_000
+
+timer7:
+    frequency: 48_000_000
+
+timer14:
+    frequency: 48_000_000
+
+timer15:
+    frequency: 48_000_000
+
+timer16:
+    frequency: 48_000_000
+
+timer17:
+    frequency: 48_000_000
+
+usart1:
+    frequency: 48_000_000
+
+usart2:
+    frequency: 48_000_000
+
+usart3:
+    frequency: 48_000_000
+
+usart4:
+    frequency: 48_000_000
+
+// LEDs, active low
+
+led3: Miscellaneous.LED @ gpioPortC 0
+    invert: true
+
+led4: Miscellaneous.LED @ gpioPortC 1
+    invert: true
+
+led5: Miscellaneous.LED @ gpioPortC 2
+    invert: true
+
+gpioPortC:
+    0 -> led3@0
+    1 -> led4@0
+    2 -> led5@0

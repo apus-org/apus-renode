@@ -1,0 +1,14 @@
+:name: APUS
+:description: Runs an ELF on the APUS board. Set $bin first.
+
+$name?="apus"
+
+mach create $name
+machine LoadPlatformDescription $ORIGIN/../platforms/boards/apus.repl
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+runMacro $reset

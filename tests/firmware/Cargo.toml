@@ -1,0 +1,15 @@
+[package]
+name = "apus-renode-firmware"
+version = "0.0.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7.5"
+panic-halt = "1.0.0"
+stm32f0 = { version = "0.15.1", features = ["stm32f0x2", "rt"] }
+
+[profile.release]
+debug = 2
