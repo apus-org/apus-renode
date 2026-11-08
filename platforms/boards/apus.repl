@@ -140,3 +140,13 @@ externalRtc: Timers.MCP79410 @ i2c1 0x6F
 
 eeprom: Memory.MCP79410_EEPROM @ i2c1 0x57
     rtc: externalRtc
+
+// display ST7789V on an 8080 bus: DB0–DB7 PE0–PE7, nCS PE8, D/C PE9, nWR PE10, nRESET PF10
+
+display: Video.ST7789V @ gpioPortE
+
+gpioPortE:
+    [0-10] -> display@[0-10]
+
+gpioPortF:
+    10 -> display@11
