@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RENODE_REVISION: v1.17.0
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv6m-none-eabi
+
+      - name: Build firmware
+        working-directory: tests/firmware
+        run: cargo build --release --locked
+
+      - name: Run tests
+        uses: antmicro/renode-test-action@v5
+        with:
+          renode-revision: ${{ env.RENODE_REVISION }}
+          renode-arguments: --test-timeout 60s --variable FIRMWARE:${{ github.workspace }}/tests/firmware/target/thumbv6m-none-eabi/release
+          tests-to-run: -t tests/tests.yaml
+          artifacts-path: ${{ runner.temp }}/results
+
+      - name: Upload results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: results
+          path: ${{ runner.temp }}/results
