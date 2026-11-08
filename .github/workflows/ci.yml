@@ -34,6 +34,10 @@ jobs:
         working-directory: tests/firmware
         run: cargo build --release --locked --bins --examples
 
+      - name: Build examples
+        working-directory: examples/board
+        run: cargo build --release
+
       - name: Run tests
         uses: antmicro/renode-test-action@v5
         with:

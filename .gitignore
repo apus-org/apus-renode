@@ -5,3 +5,5 @@ report.html
 robot_output.xml
 logs/
 snapshots/
+/examples/board/target/
+/examples/board/Cargo.lock
