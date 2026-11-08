@@ -132,3 +132,8 @@ i2c1:
 
 temperature: Sensors.MCP9803 @ i2c1 0x48
     Alert -> gpioPortD@4
+
+// RTC, MFP on PD3, open drain
+
+externalRtc: Timers.MCP79410 @ i2c1 0x6F
+    MFP -> gpioPortD@3

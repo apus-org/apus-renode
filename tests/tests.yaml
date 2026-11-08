@@ -5,3 +5,4 @@
 - tests/can.robot
 - tests/i2c.robot
 - tests/temperature.robot
+- tests/rtc.robot
