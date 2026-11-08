@@ -32,7 +32,7 @@ jobs:
 
       - name: Build firmware
         working-directory: tests/firmware
-        run: cargo build --release --locked
+        run: cargo build --release --locked --bins --examples
 
       - name: Run tests
         uses: antmicro/renode-test-action@v5

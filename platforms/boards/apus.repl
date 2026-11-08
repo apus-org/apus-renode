@@ -2,6 +2,11 @@ using "platforms/cpus/stm32f072.repl"
 
 // 8 MHz crystal, PLL to 48 MHz, AHB and APB undivided
 
+// measured on the board: 0.50-0.58 instructions per cycle in delay loops, GPIO writes and copies
+
+cpu:
+    PerformanceInMips: 24
+
 nvic:
     systickFrequency: 48_000_000
 
