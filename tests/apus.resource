@@ -1,4 +1,5 @@
 *** Variables ***
+${FIRMWARE}         ${CURDIR}/firmware/target/thumbv6m-none-eabi/release
 ${SCRIPT}           ${CURDIR}/../scripts/apus.resc
 ${STARTUP}          0.01
 ${STEP}             0.001
