@@ -49,6 +49,11 @@ usart3:
 usart4:
     frequency: 48_000_000
 
+// CAN TX, RX0, RX1 and SCE share CEC_CAN (IRQ 30); the SoC description leaves them unconnected
+
+can:
+    [0-3] -> nvic@[30, 30, 30, 30]
+
 // LEDs, active low
 
 led3: Miscellaneous.LED @ gpioPortC 0

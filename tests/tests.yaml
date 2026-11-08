@@ -2,3 +2,4 @@
 - tests/clocks.robot
 - tests/adc.robot
 - tests/tim3.robot
+- tests/can.robot
