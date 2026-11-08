@@ -60,6 +60,14 @@ led4: Miscellaneous.LED @ gpioPortC 1
 led5: Miscellaneous.LED @ gpioPortC 2
     invert: true
 
+// TIM3 CH1–4 reach PC6–PC9 on AF0, not AF1 as the SoC description maps them; PA/PB routes as there
+
+timer3:
+    0 -> gpioPortA#06@1 | gpioPortB#04@1 | gpioPortC#06@0
+    1 -> gpioPortA#07@1 | gpioPortB#05@1 | gpioPortC#07@0
+    2 -> gpioPortB#00@1 | gpioPortC#08@0
+    3 -> gpioPortB#01@1 | gpioPortC#09@0
+
 // RGB LED on TIM3 CH1–3, common anode
 
 rgbRed: Miscellaneous.LED @ gpioPortC 6
