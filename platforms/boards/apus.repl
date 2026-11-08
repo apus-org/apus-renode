@@ -59,3 +59,14 @@ gpioPortC:
     0 -> led3@0
     1 -> led4@0
     2 -> led5@0
+
+// buttons, active high
+
+wakeUp: Miscellaneous.Button @ gpioPortA 0
+    -> gpioPortA@0
+
+user0: Miscellaneous.Button @ gpioPortD 0
+    -> gpioPortD@0
+
+user1: Miscellaneous.Button @ gpioPortD 1
+    -> gpioPortD@1

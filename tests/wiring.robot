@@ -3,6 +3,7 @@ Resource            apus.resource
 
 *** Variables ***
 @{OUTPUTS}          led3    led4    led5
+@{BUTTONS}          gpioPortA.wakeUp    gpioPortD.user0    gpioPortD.user1
 ${NONE}             0xFFFFFFFF
 
 *** Keywords ***
@@ -22,4 +23,19 @@ Each Output Should Drive Only Its Led
     FOR    ${index}    ${output}    IN ENUMERATE    @{OUTPUTS}
         Write Symbol            OUTPUT    ${index}
         Only Output Should Be On    ${output}
+    END
+
+Each Button Should Drive Only Its Input
+    Create Machine              wiring
+    ${released}=                Read Symbol    BUTTONS
+    Should Be Equal As Integers    ${released}    0
+    FOR    ${bit}    ${button}    IN ENUMERATE    @{BUTTONS}
+        Execute Command         sysbus.${button} Press
+        Execute Command         emulation RunFor "${STEP}"
+        ${pressed}=             Read Symbol    BUTTONS
+        Should Be Equal As Integers    ${pressed}    ${1 << ${bit}}    ${button}
+        Execute Command         sysbus.${button} Release
+        Execute Command         emulation RunFor "${STEP}"
+        ${released}=            Read Symbol    BUTTONS
+        Should Be Equal As Integers    ${released}    0    ${button}
     END
