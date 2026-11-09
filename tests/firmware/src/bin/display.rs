@@ -57,7 +57,14 @@ fn send(gpioe: &pac::gpiof::RegisterBlock, gpiof: &pac::gpiof::RegisterBlock, wo
         DESELECT => bsrr(gpioe, N_CS),
         SELECT => bsrr(gpioe, N_CS << 16),
         _ => {
-            bsrr(gpioe, if word & PARAMETER != 0 { D_C } else { D_C << 16 });
+            bsrr(
+                gpioe,
+                if word & PARAMETER != 0 {
+                    D_C
+                } else {
+                    D_C << 16
+                },
+            );
             byte(gpioe, word as u8);
         }
     }

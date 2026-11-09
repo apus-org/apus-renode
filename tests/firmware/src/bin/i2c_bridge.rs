@@ -13,15 +13,17 @@ use apus_renode_firmware::{I2c, Timeout};
 #[no_mangle]
 static mut ADDRESS: u32 = 0;
 
+const MAILBOX: usize = 32;
+
 /// Bytes to send first, written by the test; none: read only
 #[no_mangle]
-static mut WRITE: [u8; 32] = [0; 32];
+static mut WRITE: [u8; MAILBOX] = [0; MAILBOX];
 #[no_mangle]
 static mut WRITE_LEN: u32 = 0;
 
 /// Bytes received after the write, read by the test; none: write only
 #[no_mangle]
-static mut READ: [u8; 32] = [0; 32];
+static mut READ: [u8; MAILBOX] = [0; MAILBOX];
 #[no_mangle]
 static mut READ_LEN: u32 = 0;
 
@@ -45,17 +47,26 @@ static mut PINS: u32 = 0;
 
 fn transfer(i2c: &I2c) -> Result<(), Timeout> {
     let address = unsafe { read_volatile(addr_of!(ADDRESS)) } as u8;
-    let write_len = unsafe { read_volatile(addr_of!(WRITE_LEN)) } as usize;
-    let read_len = unsafe { read_volatile(addr_of!(READ_LEN)) } as usize;
+    let write_len = (unsafe { read_volatile(addr_of!(WRITE_LEN)) } as usize).min(MAILBOX);
+    let read_len = (unsafe { read_volatile(addr_of!(READ_LEN)) } as usize).min(MAILBOX);
     let separate = unsafe { read_volatile(addr_of!(SEPARATE)) } != 0;
-    let write = unsafe { &(&*addr_of!(WRITE))[..write_len] };
-    let read = unsafe { &mut (&mut *addr_of_mut!(READ))[..read_len] };
 
-    if write_len > 0 {
-        i2c.write(address, write, read_len == 0 || separate)?;
+    let mut write = [0; MAILBOX];
+    let written = addr_of!(WRITE) as *const u8;
+    for (index, byte) in write[..write_len].iter_mut().enumerate() {
+        *byte = unsafe { read_volatile(written.add(index)) };
     }
+    if write_len > 0 {
+        i2c.write(address, &write[..write_len], read_len == 0 || separate)?;
+    }
+
+    let mut read = [0; MAILBOX];
     if read_len > 0 {
-        i2c.read(address, read)?;
+        i2c.read(address, &mut read[..read_len])?;
+    }
+    let received = addr_of_mut!(READ) as *mut u8;
+    for (index, byte) in read[..read_len].iter().enumerate() {
+        unsafe { write_volatile(received.add(index), *byte) };
     }
     Ok(())
 }

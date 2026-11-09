@@ -24,13 +24,15 @@ macro_rules! pull_down_inputs {
     ($port:expr, $pins:expr) => {{
         let pins: &[u32] = $pins;
         $port.moder.modify(|r, w| {
-            let moder = pins.iter().fold(r.bits(), |moder, pin| moder & !(0b11 << (2 * pin)));
+            let moder = pins
+                .iter()
+                .fold(r.bits(), |moder, pin| moder & !(0b11 << (2 * pin)));
             unsafe { w.bits(moder) }
         });
         $port.pupdr.modify(|r, w| {
-            let pupdr = pins
-                .iter()
-                .fold(r.bits(), |pupdr, pin| pupdr & !(0b11 << (2 * pin)) | 0b10 << (2 * pin));
+            let pupdr = pins.iter().fold(r.bits(), |pupdr, pin| {
+                pupdr & !(0b11 << (2 * pin)) | 0b10 << (2 * pin)
+            });
             unsafe { w.bits(pupdr) }
         });
     }};
@@ -48,9 +50,9 @@ fn main() -> ! {
     // high is off: set before the pins become outputs
     p.GPIOC.bsrr.write(|w| unsafe { w.bits(outputs) });
     p.GPIOC.moder.modify(|r, w| {
-        let moder = OUTPUT_PINS
-            .iter()
-            .fold(r.bits(), |moder, pin| moder & !(0b11 << (2 * pin)) | 0b01 << (2 * pin));
+        let moder = OUTPUT_PINS.iter().fold(r.bits(), |moder, pin| {
+            moder & !(0b11 << (2 * pin)) | 0b01 << (2 * pin)
+        });
         unsafe { w.bits(moder) }
     });
 
@@ -64,6 +66,8 @@ fn main() -> ! {
 
         let selected = unsafe { read_volatile(addr_of!(OUTPUT)) };
         let on = OUTPUT_PINS.get(selected as usize).map_or(0, |pin| 1 << pin);
-        p.GPIOC.bsrr.write(|w| unsafe { w.bits(outputs & !on | on << 16) });
+        p.GPIOC
+            .bsrr
+            .write(|w| unsafe { w.bits(outputs & !on | on << 16) });
     }
 }

@@ -9,7 +9,9 @@ pub fn clock(rcc: &pac::RCC, flash: &pac::FLASH) {
     rcc.cr.modify(|_, w| w.hseon().set_bit());
     while rcc.cr.read().hserdy().bit_is_clear() {}
 
-    flash.acr.modify(|_, w| w.latency().ws1().prftbe().set_bit());
+    flash
+        .acr
+        .modify(|_, w| w.latency().ws1().prftbe().set_bit());
     rcc.cfgr
         .modify(|_, w| w.pllsrc().hse_div_prediv().pllmul().mul6());
     rcc.cr.modify(|_, w| w.pllon().set_bit());
@@ -32,7 +34,9 @@ impl<'a> I2c<'a> {
     pub fn new(i2c: &'a pac::I2C1, rcc: &pac::RCC, gpiob: &pac::GPIOB) -> Self {
         rcc.ahbenr.modify(|_, w| w.iopben().set_bit());
         rcc.apb1enr.modify(|_, w| w.i2c1en().set_bit());
-        gpiob.otyper.modify(|_, w| w.ot6().set_bit().ot7().set_bit());
+        gpiob
+            .otyper
+            .modify(|_, w| w.ot6().set_bit().ot7().set_bit());
         gpiob.afrl.modify(|_, w| w.afrl6().af1().afrl7().af1());
         gpiob
             .moder

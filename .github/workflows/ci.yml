@@ -29,14 +29,21 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: thumbv6m-none-eabi
+          components: rustfmt, clippy
 
       - name: Build firmware
         working-directory: tests/firmware
-        run: cargo build --release --locked --bins --examples
+        run: |
+          cargo fmt --check
+          cargo clippy --release --locked --bins --examples -- -D warnings
+          cargo build --release --locked --bins --examples
 
       - name: Build examples
         working-directory: examples/board
-        run: cargo build --release
+        run: |
+          cargo fmt --check
+          cargo clippy --release -- -D warnings
+          cargo build --release
 
       - name: Run tests
         uses: antmicro/renode-test-action@v5

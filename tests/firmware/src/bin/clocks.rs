@@ -19,7 +19,12 @@ static mut MILLIS: u32 = 0;
 
 #[exception]
 fn SysTick() {
-    unsafe { write_volatile(addr_of_mut!(MILLIS), read_volatile(addr_of!(MILLIS)).wrapping_add(1)) };
+    unsafe {
+        write_volatile(
+            addr_of_mut!(MILLIS),
+            read_volatile(addr_of!(MILLIS)).wrapping_add(1),
+        )
+    };
 }
 
 fn enable_transmitter(usart: &pac::usart1::RegisterBlock) {
@@ -41,9 +46,14 @@ fn main() -> ! {
     cp.SYST.enable_counter();
 
     p.RCC.apb2enr.modify(|_, w| w.usart1en().set_bit());
-    p.RCC
-        .apb1enr
-        .modify(|_, w| w.usart2en().set_bit().usart3en().set_bit().usart4en().set_bit());
+    p.RCC.apb1enr.modify(|_, w| {
+        w.usart2en()
+            .set_bit()
+            .usart3en()
+            .set_bit()
+            .usart4en()
+            .set_bit()
+    });
     for usart in [&*p.USART1, &*p.USART2, &*p.USART3, &*p.USART4] {
         enable_transmitter(usart);
     }

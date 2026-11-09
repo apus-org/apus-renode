@@ -80,13 +80,15 @@ fn frame(spi: &pac::SPI1) -> Result<(), Timeout> {
     for index in 0..len {
         let byte = unsafe { read_volatile(tx.add(index)) };
         let received = if hal && index == 0 {
-            spi.cr1.modify(|_, w| w.bidimode().set_bit().bidioe().set_bit());
+            spi.cr1
+                .modify(|_, w| w.bidimode().set_bit().bidioe().set_bit());
             send(spi, byte);
             wait(|| {
                 let sr = spi.sr.read();
                 sr.txe().bit_is_set() && sr.bsy().bit_is_clear()
             })?;
-            spi.cr1.modify(|_, w| w.bidimode().clear_bit().bidioe().clear_bit());
+            spi.cr1
+                .modify(|_, w| w.bidimode().clear_bit().bidioe().clear_bit());
             0xEE
         } else {
             exchange(spi, byte)?

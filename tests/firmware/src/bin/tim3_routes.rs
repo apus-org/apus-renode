@@ -26,12 +26,17 @@ fn main() -> ! {
     p.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
 
     // PC6–PC9: TIM3 CH1–CH4 on AF0
-    p.GPIOC
-        .afrl
-        .modify(|_, w| w.afrl6().af0().afrl7().af0());
+    p.GPIOC.afrl.modify(|_, w| w.afrl6().af0().afrl7().af0());
     p.GPIOC.afrh.modify(|_, w| w.afrh8().af0().afrh9().af0());
     p.GPIOC.moder.modify(|_, w| {
-        w.moder6().alternate().moder7().alternate().moder8().alternate().moder9().alternate()
+        w.moder6()
+            .alternate()
+            .moder7()
+            .alternate()
+            .moder8()
+            .alternate()
+            .moder9()
+            .alternate()
     });
 
     let tim3 = &p.TIM3;
@@ -50,7 +55,11 @@ fn main() -> ! {
     loop {
         let selected = unsafe { read_volatile(addr_of!(CHANNEL)) };
         // CCxE is bit 4 × channel
-        let enable = if selected < CHANNELS { 1 << (4 * selected) } else { 0 };
+        let enable = if selected < CHANNELS {
+            1 << (4 * selected)
+        } else {
+            0
+        };
         tim3.ccer.write(|w| unsafe { w.bits(enable) });
     }
 }

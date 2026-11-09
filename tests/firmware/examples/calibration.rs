@@ -67,7 +67,9 @@ fn copy(source: &[u32; WORDS], target: &mut [u32; WORDS]) {
 fn bus_writes(gpioe: &pac::gpioe::RegisterBlock) {
     for value in 0..BUS_WRITES {
         let byte = value & 0xFF;
-        gpioe.bsrr.write(|w| unsafe { w.bits(byte | (!byte & 0xFF | WR) << 16) });
+        gpioe
+            .bsrr
+            .write(|w| unsafe { w.bits(byte | (!byte & 0xFF | WR) << 16) });
         gpioe.bsrr.write(|w| unsafe { w.bits(WR) });
     }
 }
@@ -78,14 +80,20 @@ fn main() -> ! {
     let cp = cortex_m::Peripherals::take().unwrap();
     apus_renode_firmware::clock(&p.RCC, &p.FLASH);
 
-    p.RCC.ahbenr.modify(|_, w| w.iopden().set_bit().iopeen().set_bit());
+    p.RCC
+        .ahbenr
+        .modify(|_, w| w.iopden().set_bit().iopeen().set_bit());
     p.RCC.apb1enr.modify(|_, w| w.usart3en().set_bit());
     // PD8 alternate function 0 = USART3_TX
     p.GPIOD.moder.modify(|_, w| w.moder8().alternate());
-    p.USART3.brr.write(|w| unsafe { w.bits((SYSCLK_HZ + BAUD_RATE / 2) / BAUD_RATE) });
+    p.USART3
+        .brr
+        .write(|w| unsafe { w.bits((SYSCLK_HZ + BAUD_RATE / 2) / BAUD_RATE) });
     p.USART3.cr1.write(|w| w.te().set_bit().ue().set_bit());
     // PE0–7 and PE10 (WR) as outputs
-    p.GPIOE.moder.modify(|r, w| unsafe { w.bits(r.bits() & !0x0030_FFFF | 0x0010_5555) });
+    p.GPIOE
+        .moder
+        .modify(|r, w| unsafe { w.bits(r.bits() & !0x0030_FFFF | 0x0010_5555) });
 
     let mut syst = cp.SYST;
     syst.set_clock_source(SystClkSource::Core);
@@ -96,13 +104,17 @@ fn main() -> ! {
     let mut target = [0u32; WORDS];
     let mut vcom = Vcom(&p.USART3);
 
-    for round in 0.. {
+    let mut round: u32 = 0;
+    loop {
         let busy = ticks(&mut syst, || cortex_m::asm::delay(black_box(BUSY_CYCLES)));
         let arith = ticks(&mut syst, || arithmetic(&mut source));
         let copied = ticks(&mut syst, || copy(&source, &mut target));
         let bus = ticks(&mut syst, || bus_writes(&p.GPIOE));
-        let _ = writeln!(vcom, "round {round} busy {busy} arith {arith} copy {copied} bus {bus}\r");
+        let _ = writeln!(
+            vcom,
+            "round {round} busy {busy} arith {arith} copy {copied} bus {bus}\r"
+        );
         cortex_m::asm::delay(SYSCLK_HZ / 2);
+        round = round.wrapping_add(1);
     }
-    loop {}
 }
