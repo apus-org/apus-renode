@@ -1,6 +1,7 @@
 - tests/wiring.robot
 - tests/clocks.robot
 - tests/adc.robot
+- tests/packet-memory.robot
 - tests/tim3.robot
 - tests/can.robot
 - tests/i2c.robot

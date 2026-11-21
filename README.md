@@ -21,6 +21,7 @@ virtually on a PC or in CI, without requiring the actual board.
 | Buttons | wake-up, user 0, user 1 | `sysbus.gpioPortA.wakeUp`, `sysbus.gpioPortD.user0`, `user1` |
 | Buzzer | active buzzer | `sysbus.gpioPortC.buzzer` |
 | Potentiometer | ADC_IN14 | `sysbus.adc.potentiometer` |
+| Packet memory | USB/CAN SRAM, 1 KB | `sysbus.packetMemory` |
 | Temperature | MCP9803 | `sysbus.i2c1.temperature` |
 | RTC | MCP79410 with EEPROM | `sysbus.i2c1.externalRtc`, `sysbus.i2c1.eeprom` |
 | Display | ST7789V, 240×320 | `sysbus.gpioPortE.display` |
