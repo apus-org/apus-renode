@@ -24,6 +24,7 @@ virtually on a PC or in CI, without requiring the actual board.
 | Temperature | MCP9803 | `sysbus.i2c1.temperature` |
 | RTC | MCP79410 with EEPROM | `sysbus.i2c1.externalRtc`, `sysbus.i2c1.eeprom` |
 | Display | ST7789V, 240×320 | `sysbus.gpioPortE.display` |
+| SPI | SPI1, SPI2 with FIFO and data packing | `sysbus.spi1`, `sysbus.spi2` |
 | Touch | TSC2046 | `sysbus.spi1.touch` |
 | VCOM, UART | USART3, USART1, USART4 | `sysbus.usart3` |
 | CAN | CAN, interrupt on CEC_CAN | `sysbus.can` |
@@ -111,7 +112,7 @@ renode-test -t tests/tests.yaml
 | Path | Contents |
 |------|----------|
 | [platforms/boards/](platforms/boards/) | board description |
-| [peripherals/](peripherals/) | models of the parts on the board |
+| [peripherals/](peripherals/) | models of the parts on the board and of the SPI |
 | [scripts/](scripts/) | script that loads the board |
 | [tests/](tests/) | tests and their firmware |
 | [examples/](examples/) | example using apus-rs |

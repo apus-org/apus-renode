@@ -3,25 +3,10 @@
 
 $name?="apus"
 
-include $ORIGIN/../peripherals/MCP9803.cs $ORIGIN/../peripherals/MCP79410.cs $ORIGIN/../peripherals/ST7789V.cs $ORIGIN/../peripherals/TSC2046.cs
+include $ORIGIN/../peripherals/STM32F0_SPI.cs $ORIGIN/../peripherals/MCP9803.cs $ORIGIN/../peripherals/MCP79410.cs $ORIGIN/../peripherals/ST7789V.cs $ORIGIN/../peripherals/TSC2046.cs
 
 mach create $name
 machine LoadPlatformDescription $ORIGIN/../platforms/boards/apus.repl
-
-# Renode ignores BIDIMODE/BIDIOE: drop what spi1 receives while sending only, as the chip receives nothing then
-sysbus SetHookBeforePeripheralWrite spi1
-"""
-if offset == 0x00 or offset == 0x0C:
-    try:
-        sendOnly
-    except NameError:
-        sendOnly = False
-    if sendOnly:
-        while self.ReadDoubleWord(0x08) & 1:
-            self.ReadDoubleWord(0x0C)
-    if offset == 0x00:
-        sendOnly = value & 0xC000 == 0xC000
-"""
 
 macro reset
 """

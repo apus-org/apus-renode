@@ -151,9 +151,24 @@ gpioPortE:
 gpioPortF:
     10 -> display@11
 
+// SPI1 and SPI2 with the F0's FIFO, data packing and one-line transmit; the SoC description's model
+// has neither, and an entry can't take another type, so its registrations make way for new ones
+
+spi1: @none
+
+spi2: @none
+
+f0Spi1: SPI.STM32F0_SPI @ sysbus 0x40013000 as "spi1"
+    IRQ -> nvic@25
+    DMAReceive -> dma@2
+
+f0Spi2: SPI.STM32F0_SPI @ sysbus 0x40003800 as "spi2"
+    IRQ -> nvic@26
+    DMAReceive -> dma@4
+
 // touch controller TSC2046 on SPI1, nCS PE12, PENIRQ PF2; raw readings at the panel edges measured on the board
 
-touch: Input.TSC2046 @ spi1
+touch: Input.TSC2046 @ f0Spi1
     width: 240
     height: 320
     rawLeft: 202
